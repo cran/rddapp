@@ -1,7 +1,7 @@
 Package: rddapp
 Title: Regression Discontinuity Design Application
-Version: 0.1.0
-Date: 2017-12-05
+Version: 1.0.0
+Date: 2018-01-23
 Authors@R: c(
     person("Ze", "Jin", role = c("aut"),
            email = "zj58@cornell.edu"),
@@ -26,10 +26,10 @@ Description: Estimation of both single- and multiple-assignment Regression Disco
     Lee, D. S., Lemieux, T. (2010) <doi:10.1257/jel.48.2.281>.
 Depends: R (>= 3.2.3)
 Imports: AER (>= 1.2-5), sandwich (>= 2.3-4), lmtest (>= 0.9-35),
-        Formula (>= 1.2-1), shiny (>= 0.14), DT (>= 0.2)
+        Formula (>= 1.2-1), shiny (>= 0.14)
 Suggests: rdd (>= 0.57), rddtools (>= 0.4.0), foreign (>= 0.8-67),
         devtools (>= 1.12.0), testthat (>= 1.0.2), roxygen2 (>= 5.0.1),
-        knitr (>= 1.14), rmarkdown (>= 1.1.9012)
+        knitr (>= 1.14), rmarkdown (>= 1.1.9012), DT (>= 0.2)
 VignetteBuilder: knitr
 License: GPL (>= 2)
 LazyData: true
@@ -40,9 +40,10 @@ Collate: 'attr_check.R' 'bw_ik09.R' 'bw_ik12.R' 'data.R' 'wt_kern.R'
         'mrd_sens_bw.R' 'mrd_sens_cutoff.R' 'plot.mfrd.R'
         'predict.rd.R' 'plot.rd.R' 'print.mfrd.R' 'print.rd.R'
         'rd_impute.R' 'rd_power.R' 'rd_sens_bw.R' 'rd_sens_cutoff.R'
-        'rd_type.R' 'rddapp-package.R' 'sens_plot.R' 'summary.rd.R'
+        'rd_type.R' 'rddapp-package.R' 'sens_plot.R' 'shiny_run.R'
+        'summary.rd.R'
 NeedsCompilation: no
-Packaged: 2017-12-11 19:18:49 UTC; zj58
+Packaged: 2018-01-24 20:06:30 UTC; btluck
 Author: Ze Jin [aut],
   Wang Liao [aut],
   Felix Thoemmes [aut, cre],
@@ -53,4 +54,4 @@ Author: Ze Jin [aut],
     rddtools)
 Maintainer: Felix Thoemmes <fjt36@cornell.edu>
 Repository: CRAN
-Date/Publication: 2017-12-12 15:32:35 UTC
+Date/Publication: 2018-01-25 15:20:23 UTC

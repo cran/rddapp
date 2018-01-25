@@ -39,10 +39,11 @@ sens_plot <- function(sim_results, level = .95, x = c("A1", "A2", "bw"),
   plot_data$type <- sub("(center|univ[12])-", "", plot_data$model)
   
   if (is.null(yrange)) {
-    if (cumprod(range(plot_data$est, na.rm = TRUE))[2] < 0)  
-      yrange <- range(plot_data$est, na.rm = TRUE) 
-    else 
-      yrange <- range(plot_data$est, 0, na.rm = TRUE)
+    if (cumprod(range(plot_data$est, na.rm = TRUE))[2] < 0) {
+       yrange <- range(plot_data$est, na.rm = TRUE)      
+    } else {
+      yrange <- range(plot_data$est, 0, na.rm = TRUE)  
+    }
   }
 
   approach <- regmatches(plot_data$model, regexpr("(center|univ[12])", plot_data$model)) 
@@ -53,14 +54,17 @@ sens_plot <- function(sim_results, level = .95, x = c("A1", "A2", "bw"),
   plot_data$shape <- sapply(plot_data$type, switch, 
     linear = 0, quadratic = 1, cubic = 2, optimal = 15, half = 16, double = 17, 0)
   
-  plot_data$lty <- if(x != "bw") 
+  plot_data$lty <- if (x != "bw") 
     sapply(plot_data$approach, switch, center = 1, univ1 = 2, univ2 = 3, 1) 
     else 1
   
   plot_data$x <- plot_data[, x]
-  
+  if (x == "bw") {
+    plot_data$model <- "bw"
+  }
   plot.new()
-  plot.window(xlim = range(plot_data$x), ylim = yrange + c(0, .25 * (yrange[2] - yrange[1])))
+  plot.window(xlim = range(plot_data$x), 
+    ylim = yrange + ifelse(x != "bw", c(0, .25 * (yrange[2] - yrange[1])), 0))
   
   by(plot_data, plot_data$model, 
     function(df) {

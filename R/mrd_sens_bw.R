@@ -69,9 +69,8 @@ mrd_sens_bw <- function(object, approach = c("center", "univ1", "univ2"), bws) {
   original_result <- switch(approach,
     center = data.frame(
       est = object$center$tau_MRD$est["Opt"], 
-      # Wang: used index here because the returned array's names are constant "Z" or "Tr" 
       se = object$center$tau_MRD$se["Opt"], 
-      bw = object$center$tau_MRD$bw["Opt"], ,
+      bw = object$center$tau_MRD$bw["Opt"], 
       model = paste("center-origin"), 
       stringsAsFactors = FALSE),
     univ1 = data.frame(
