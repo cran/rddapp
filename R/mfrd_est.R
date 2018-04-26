@@ -8,8 +8,6 @@
 #' @param x2 The assignment variable 2.
 #' @param c1 The cutoff of assignment variable 1.
 #' @param c2 The cutoff of assignment variable 2.
-#' @param tr The treatment variable used to compare with the derived treatment 
-#'   based on assignments and cutoffs.
 #' @param t.design The treatment option according to design.
 #'   The 1st entry is for x1: \code{"g"} means treatment is assigned 
 #'   if x1 is greater than its cutoff, \code{"geq"} means treatment is assigned 
@@ -20,14 +18,18 @@
 #' @param local The range of neighboring points around the cutoff on the 
 #'   standardized The scale on each assignment variable, which is a positive number.
 #' @param ngrid The number of non-zero grid points on each assignment variable,
-#'   which is also the number of zero grid points on each assignment variable.
+#'   which is also the number of zero grid points on each assignment variable. Value used in 
+#'   Wong, Steiner and Cook (2013) is 2500, which may cause long computational time.
 #' @param margin The range of grid points beyond the minimum and maximum
 #'   of sample points on each assignment variable.
-#' @param boot The number of bootstrap samples to obtain standard deviation of estimates.
+#' @param boot The number of bootstrap samples to obtain standard error of estimates.
 #' @param cluster An optional vector specifying clusters within which the errors are assumed
 #'   to be correlated. This will result in reporting cluster robust SEs. This option overrides
 #'   anything specified in \code{se.type}. It is suggested that data with a discrete running 
 #'   variable be clustered by each unique value of the running variable (Lee and Card, 2008).
+#' @param stop.on.error Logical. If \code{TRUE} (the default), removes bootstraps which cause
+#'   error in the \code{integrate} function, and resample till the specified number of 
+#'   bootstrap samples are acquired.
 #'
 #' @return \code{mfrd_est} returns an object of \link{class} "\code{mfrd}".
 #'
@@ -42,29 +44,58 @@
 #' x1 <- runif(1000, -1, 1)
 #' x2 <- runif(1000, -1, 1)
 #' cov <- rnorm(1000)
-#' y <- 3 + 2 * x1 + 3 * cov + 10 * (x2 >= 0) + rnorm(1000)
-#' mfrd_est(y = y, x1 = x1, x2 = x2, c1 = 0, c2 = 0)
+#' y <- 3 + 2 * (x1 >= 0) + 3 * cov + 10 * (x2 >= 0) + rnorm(1000)
+#' mfrd_est(y = y, x1 = x1, x2 = x2, c1 = 0, c2 = 0, t.design = c("geq", "geq"))
 
-mfrd_est <- function(y, x1, x2, c1, c2, tr = NULL, t.design = c("l", "l"),
-  local = 0.15, ngrid = 2500, margin = 0.03, boot = NULL, cluster = NULL) {
+mfrd_est <- function(y, x1, x2, c1, c2, t.design = NULL,
+  local = 0.15, ngrid = 250, margin = 0.03, boot = NULL, cluster = NULL,
+  stop.on.error = TRUE) {
+  
+  if (is.null(t.design)){
+    stop("Specify t.design.")
+  }
+  
   call <- match.call()
 
-  out <- mfrd_est_single(y = y, x1 = x1, x2 = x2, c1 = c1, c2 = c2, tr = tr, 
+  out <- mfrd_est_single(y = y, x1 = x1, x2 = x2, c1 = c1, c2 = c2, 
     t.design = t.design, local = local, ngrid = ngrid, margin = margin)
-
+  # keep track of number of bad bootstrap samples
+  badboot <- 0
+  
   if (is.numeric(boot) && boot > 0) {
     est_boot <- matrix(NA, boot, 9)
-    for (b in 1:boot) {
+    b = 1
+    while (b <= boot) {
       if (is.null(cluster)) {
         index <- sample(length(y), replace = TRUE)
       } else {
         index <- clus_boot(length(y), cluster = cluster)
       }
+      tryboot <- try(mfrd_est_single(y = y[index], x1 = x1[index], x2 = x2[index], 
+        c1 = c1, c2 = c2, t.design = t.design, local = local, 
+        ngrid = ngrid, margin = margin, stop.on.error = TRUE)$est, silent = TRUE)
+      if (stop.on.error){
+        if (inherits(tryboot, "try-error")){
+          badboot <- badboot + 1
+        }else{
+          est_boot[b, ] <- tryboot
+          b <- b + 1
+        }
+      }else{
+        if (inherits(tryboot, "try-error")){
+          badboot <- badboot + 1
+          est_boot[b, ] <- mfrd_est_single(y = y[index], x1 = x1[index], x2 = x2[index], 
+                                           c1 = c1, c2 = c2, t.design = t.design, 
+                                           local = local, ngrid = ngrid, margin = margin, 
+                                           stop.on.error = stop.on.error)$est
+        }else{
+          est_boot[b, ] <- tryboot 
+        }
+        b <- b + 1
+      }
 
-      est_boot[b, ] <- mfrd_est_single(y = y[index], x1 = x1[index], x2 = x2[index], 
-        c1 = c1, c2 = c2, tr = tr[index], t.design = t.design, local = local, 
-        ngrid = ngrid, margin = margin)$est
     }
+    out$est_boot = est_boot
     se_boot <- apply(est_boot, 2, sd, na.rm = TRUE)
     ci_boot <- apply(est_boot, 2, quantile, na.rm = TRUE, probs = c(.025,.975))
     out$se <- se_boot
@@ -74,12 +105,24 @@ mfrd_est <- function(y, x1, x2, c1, c2, tr = NULL, t.design = c("l", "l"),
   out$impute <- FALSE
   out$call <- call
 
+  if (badboot>0){
+    if (stop.on.error){
+      cat(paste("Discarded and resampled ", badboot, " out of ", boot, " bootstrap samples (",
+                format(badboot/boot*100, digits = 3),
+                "%) which caused errors.\n", sep= ""))
+    }else{
+      cat(paste(badboot, " out of the ", boot, " bootstrap samples (", 
+                format(badboot/boot*100, digits = 3),
+                "%) caused errors.\n", sep= ""))
+    }
+  }
+  
   return(out)
 }
 
 ## single estimate
-mfrd_est_single <- function(y, x1, x2, c1, c2, tr = NULL, t.design = c("l", "l"), 
-  local = 0.15, ngrid = 2500, margin = 0.03) {
+mfrd_est_single <- function(y, x1, x2, c1, c2, t.design = c("l", "l"), 
+  local = 0.15, ngrid = 2500, margin = 0.03, stop.on.error = stop.on.error) {
   # call <- match.call()
 
   dat <- data.frame(y, x1, x2)
@@ -210,10 +253,10 @@ mfrd_est_single <- function(y, x1, x2, c1, c2, tr = NULL, t.design = c("l", "l")
   
   # Numerator: Integral for numerator of MATH frontier (x1)
   dat_h_sub1 <- subset(dat_h, !as.logical(treat_assign(dat_h$h1, zc1, t.design[1])))
-  numintx1 <- int_cubic(dat_h_sub1$h1, dat_h_sub1$x1prod)
+  numintx1 <- int_cubic(dat_h_sub1$h1, dat_h_sub1$x1prod, stop.on.error)
   
   # Denominator: Intergral of the conditional density function f1(x1) 
-  denintx1 <- int_cubic(dat_h_sub1$h1, dat_h_sub1$fx1)
+  denintx1 <- int_cubic(dat_h_sub1$h1, dat_h_sub1$fx1, stop.on.error)
   
   # Math assignment variable / Reading treatment frontier ##############
 
@@ -227,10 +270,10 @@ mfrd_est_single <- function(y, x1, x2, c1, c2, tr = NULL, t.design = c("l", "l")
   
   # Numerator: Integral for numerator of READING frontier (x2)
   dat_h_sub2 <- subset(dat_h, !as.logical(treat_assign(dat_h$h2, zc2, t.design[2])))
-  numintx2 <- int_cubic(dat_h_sub2$h2, dat_h_sub2$x2prod) 
+  numintx2 <- int_cubic(dat_h_sub2$h2, dat_h_sub2$x2prod, stop.on.error) 
   
   # Denominator: Intergral of the conditional density function f2(x2)
-  denintx2 <- int_cubic(dat_h_sub2$h2, dat_h_sub2$fx2) 
+  denintx2 <- int_cubic(dat_h_sub2$h2, dat_h_sub2$fx2, stop.on.error) 
   
   # Treatment weights ################################################
 
@@ -278,7 +321,7 @@ mfrd_est_single <- function(y, x1, x2, c1, c2, tr = NULL, t.design = c("l", "l")
   
   # Numerator: Integral for numerator of MATH frontier (x1)
   dat_h_sub1 <- subset(dat_h, !as.logical(treat_assign(dat_h$h1, zc1, t.design[1])))
-  htnumintx1 <- int_cubic(dat_h_sub1$h1, dat_h_sub1$htx1prod)
+  htnumintx1 <- int_cubic(dat_h_sub1$h1, dat_h_sub1$htx1prod, stop.on.error)
   
   # Math assignment variable / Reading treatment frontier ##############
 
@@ -287,7 +330,7 @@ mfrd_est_single <- function(y, x1, x2, c1, c2, tr = NULL, t.design = c("l", "l")
   
   # Numerator: Integral for numerator of READING frontier (x2)
   dat_h_sub2 <- subset(dat_h, !as.logical(treat_assign(dat_h$h2, zc2, t.design[2])))
-  htnumintx2 <- int_cubic(dat_h_sub2$h2, dat_h_sub2$htx2prod) 
+  htnumintx2 <- int_cubic(dat_h_sub2$h2, dat_h_sub2$htx2prod, stop.on.error) 
   
   # Treatment estimates for "heterogeneous treatments" (HT) model ######
 
@@ -319,7 +362,7 @@ mfrd_est_single <- function(y, x1, x2, c1, c2, tr = NULL, t.design = c("l", "l")
   
   # Numerator: Integral for numerator of MATH frontier (x1)
   dat_h_sub1 <- subset(dat_h, !as.logical(treat_assign(dat_h$h1, zc1, t.design[1])))
-  tnumintx1 <- int_cubic(dat_h_sub1$h1, dat_h_sub1$tx1prod)
+  tnumintx1 <- int_cubic(dat_h_sub1$h1, dat_h_sub1$tx1prod, stop.on.error)
   
   # Math assignment variable / Reading treatment frontier ##############
   
@@ -328,7 +371,7 @@ mfrd_est_single <- function(y, x1, x2, c1, c2, tr = NULL, t.design = c("l", "l")
   
   # Numerator: Integral for numerator of READING frontier (x2)
   dat_h_sub2 <- subset(dat_h, !as.logical(treat_assign(dat_h$h2, zc2, t.design[2])))
-  tnumintx2 <- int_cubic(dat_h_sub2$h2, dat_h_sub2$tx2prod)
+  tnumintx2 <- int_cubic(dat_h_sub2$h2, dat_h_sub2$tx2prod, stop.on.error)
   
   # Treatment estimates for "treatment only" (TO) model ######
 
@@ -380,9 +423,9 @@ mfrd_est_single <- function(y, x1, x2, c1, c2, tr = NULL, t.design = c("l", "l")
 }
 
 ## mimic Stata's integ
-int_cubic <- function(x, y){
+int_cubic <- function(x, y, stop.on.error = TRUE){
   integrate(splinefun(x, y, method = "natural"), lower = min(x), upper = max(x), 
-    subdivisions = 500L)$value
+    subdivisions = 500L, stop.on.error = stop.on.error)$value
 }
 
 ## mimic Stata's kdensity

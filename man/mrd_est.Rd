@@ -7,8 +7,9 @@
 mrd_est(formula, data, subset = NULL, cutpoint = NULL, bw = NULL,
   kernel = "triangular", se.type = "HC1", cluster = NULL,
   verbose = FALSE, less = FALSE, est.cov = FALSE, est.itt = FALSE,
-  local = 0.15, ngrid = 2500, margin = 0.03, boot = NULL,
-  method = c("center", "univ", "front"), t.design = c("l", "l"))
+  local = 0.15, ngrid = 250, margin = 0.03, boot = NULL,
+  method = c("center", "univ", "front"), t.design = NULL,
+  stop.on.error = TRUE)
 }
 \arguments{
 \item{formula}{The formula of the MRDD. This is supplied in the
@@ -62,12 +63,13 @@ instead of linear, quadratic, cubic, optimal, half and double.}
 standardized scale on each assignment variable, which is a positive number.}
 
 \item{ngrid}{The number of non-zero grid points on each assignment variable,
-which is also the number of zero grid points on each assignment variable.}
+which is also the number of zero grid points on each assignment variable. Value used in 
+Wong, Steiner and Cook (2013) is 2500, which may cause long computational time.}
 
 \item{margin}{The range of grid points beyond the minimum and maximum
 of sample points on each assignment variable.}
 
-\item{boot}{The number of bootstrap samples to obtain standard deviation of estimates.}
+\item{boot}{The number of bootstrap samples to obtain standard error of estimates.}
 
 \item{method}{The method to estimate rd effect. Options are \code{"center"}, 
 \code{"univ"}, \code{"front"}.}
@@ -79,6 +81,10 @@ if X1 is greater than or equal to its cutoff, \code{"l"} means treatment is assi
 if X1 is less than its cutoff, \code{"leq"} means treatment is assigned 
 if X1 is less than or equal to its cutoff.
 The 2nd entry is for X2.}
+
+\item{stop.on.error}{Logical. If \code{TRUE} (the default), removes bootstraps which cause
+error in the \code{integrate} function, and resample till the specified number of 
+bootstrap samples are acquired.}
 }
 \value{
 \code{mrd_est} returns an object of \link{class} "\code{mrd}".
@@ -92,13 +98,13 @@ and frontier-specific effects (tau_R and tau_M) simultaneously.
 x1 <- runif(1000, -1, 1)
 x2 <- runif(1000, -1, 1)
 cov <- rnorm(1000)
-y <- 3 + 2 * x1 + 3 * cov + 10 * (x2 >= 0) + rnorm(1000)
+y <- 3 + 2 * (x1 >= 0) + 3 * cov + 10 * (x2 >= 0) + rnorm(1000)
 # centering
-mrd_est(y ~ x1 + x2 | cov, method = "center")
+mrd_est(y ~ x1 + x2 | cov, method = "center", t.design = c("geq", "geq"))
 # univariate
-mrd_est(y ~ x1 + x2 | cov, method = "univ")
+mrd_est(y ~ x1 + x2 | cov, method = "univ", t.design = c("geq", "geq"))
 # frontier
-mrd_est(y ~ x1 + x2 | cov, method = "front")
+mrd_est(y ~ x1 + x2 | cov, method = "front", t.design = c("geq", "geq"))
 }
 \references{
 Wong, V. C., Steiner, P. M., Cook, T. D. (2013). 

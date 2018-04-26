@@ -4,9 +4,8 @@
 \alias{mfrd_est}
 \title{Multivariate Frontier Regression Discontinuity Estimation}
 \usage{
-mfrd_est(y, x1, x2, c1, c2, tr = NULL, t.design = c("l", "l"),
-  local = 0.15, ngrid = 2500, margin = 0.03, boot = NULL,
-  cluster = NULL)
+mfrd_est(y, x1, x2, c1, c2, t.design = NULL, local = 0.15, ngrid = 250,
+  margin = 0.03, boot = NULL, cluster = NULL, stop.on.error = TRUE)
 }
 \arguments{
 \item{y}{The outcome variable (continuous).}
@@ -18,9 +17,6 @@ mfrd_est(y, x1, x2, c1, c2, tr = NULL, t.design = c("l", "l"),
 \item{c1}{The cutoff of assignment variable 1.}
 
 \item{c2}{The cutoff of assignment variable 2.}
-
-\item{tr}{The treatment variable used to compare with the derived treatment 
-based on assignments and cutoffs.}
 
 \item{t.design}{The treatment option according to design.
 The 1st entry is for x1: \code{"g"} means treatment is assigned 
@@ -34,17 +30,22 @@ The 2nd entry is for x2.}
 standardized The scale on each assignment variable, which is a positive number.}
 
 \item{ngrid}{The number of non-zero grid points on each assignment variable,
-which is also the number of zero grid points on each assignment variable.}
+which is also the number of zero grid points on each assignment variable. Value used in 
+Wong, Steiner and Cook (2013) is 2500, which may cause long computational time.}
 
 \item{margin}{The range of grid points beyond the minimum and maximum
 of sample points on each assignment variable.}
 
-\item{boot}{The number of bootstrap samples to obtain standard deviation of estimates.}
+\item{boot}{The number of bootstrap samples to obtain standard error of estimates.}
 
 \item{cluster}{An optional vector specifying clusters within which the errors are assumed
 to be correlated. This will result in reporting cluster robust SEs. This option overrides
 anything specified in \code{se.type}. It is suggested that data with a discrete running 
 variable be clustered by each unique value of the running variable (Lee and Card, 2008).}
+
+\item{stop.on.error}{Logical. If \code{TRUE} (the default), removes bootstraps which cause
+error in the \code{integrate} function, and resample till the specified number of 
+bootstrap samples are acquired.}
 }
 \value{
 \code{mfrd_est} returns an object of \link{class} "\code{mfrd}".
@@ -58,6 +59,6 @@ set.seed(12345)
 x1 <- runif(1000, -1, 1)
 x2 <- runif(1000, -1, 1)
 cov <- rnorm(1000)
-y <- 3 + 2 * x1 + 3 * cov + 10 * (x2 >= 0) + rnorm(1000)
-mfrd_est(y = y, x1 = x1, x2 = x2, c1 = 0, c2 = 0)
+y <- 3 + 2 * (x1 >= 0) + 3 * cov + 10 * (x2 >= 0) + rnorm(1000)
+mfrd_est(y = y, x1 = x1, x2 = x2, c1 = 0, c2 = 0, t.design = c("geq", "geq"))
 }

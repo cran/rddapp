@@ -4,7 +4,7 @@
 \alias{var_center}
 \title{Assignment Centering for Multivariate Frontier Regression Discontinuity}
 \usage{
-var_center(x, cut = c(0, 0), t.design = c("l", "l"), t.plot = FALSE)
+var_center(x, cut = c(0, 0), t.design = NULL, t.plot = FALSE)
 }
 \arguments{
 \item{x}{Data frame or matrix of two assignment variables,
@@ -27,5 +27,7 @@ The 2nd entry is for x2.}
   according to the design.
 }
 \description{
-\code{var_center} computes the univariate assignment variable X based on the cutoffs of
+\code{var_center} computes the univariate assignment variable X based on the cutoffs of 
+This is an internal function and is typically not directly invoked by the user. 
+It can be accessed using the triple colon, as in rddapp:::var_center().
 }

@@ -42,10 +42,11 @@
 #' @param local The range of neighboring points around the cutoff on the 
 #'   standardized scale on each assignment variable, which is a positive number.
 #' @param ngrid The number of non-zero grid points on each assignment variable,
-#'   which is also the number of zero grid points on each assignment variable.
+#'   which is also the number of zero grid points on each assignment variable. Value used in 
+#'   Wong, Steiner and Cook (2013) is 2500, which may cause long computational time.
 #' @param margin The range of grid points beyond the minimum and maximum
 #'   of sample points on each assignment variable.
-#' @param boot The number of bootstrap samples to obtain standard deviation of estimates.
+#' @param boot The number of bootstrap samples to obtain standard error of estimates.
 #' @param method The method to estimate rd effect. Options are \code{"center"}, 
 #'   \code{"univ"}, \code{"front"}.
 #' @param t.design The treatment option according to design.
@@ -55,6 +56,9 @@
 #'   if X1 is less than its cutoff, \code{"leq"} means treatment is assigned 
 #'   if X1 is less than or equal to its cutoff.
 #'   The 2nd entry is for X2.
+#' @param stop.on.error Logical. If \code{TRUE} (the default), removes bootstraps which cause
+#'   error in the \code{integrate} function, and resample till the specified number of 
+#'   bootstrap samples are acquired.
 #'
 #' @return \code{mrd_est} returns an object of \link{class} "\code{mrd}".
 #'
@@ -78,19 +82,24 @@
 #' x1 <- runif(1000, -1, 1)
 #' x2 <- runif(1000, -1, 1)
 #' cov <- rnorm(1000)
-#' y <- 3 + 2 * x1 + 3 * cov + 10 * (x2 >= 0) + rnorm(1000)
+#' y <- 3 + 2 * (x1 >= 0) + 3 * cov + 10 * (x2 >= 0) + rnorm(1000)
 #' # centering
-#' mrd_est(y ~ x1 + x2 | cov, method = "center")
+#' mrd_est(y ~ x1 + x2 | cov, method = "center", t.design = c("geq", "geq"))
 #' # univariate
-#' mrd_est(y ~ x1 + x2 | cov, method = "univ")
+#' mrd_est(y ~ x1 + x2 | cov, method = "univ", t.design = c("geq", "geq"))
 #' # frontier
-#' mrd_est(y ~ x1 + x2 | cov, method = "front")
+#' mrd_est(y ~ x1 + x2 | cov, method = "front", t.design = c("geq", "geq"))
 
 mrd_est <- function(formula, data, subset = NULL, cutpoint = NULL, bw = NULL, 
   kernel = "triangular", se.type = "HC1", cluster = NULL, verbose = FALSE, 
-  less = FALSE, est.cov = FALSE, est.itt = FALSE, local = 0.15, ngrid = 2500, 
+  less = FALSE, est.cov = FALSE, est.itt = FALSE, local = 0.15, ngrid = 250, 
   margin = 0.03, boot = NULL, method = c("center", "univ", "front"), 
-  t.design = c("l", "l")) {
+  t.design = NULL, stop.on.error = TRUE) {
+
+  if (is.null(t.design)){
+    stop("Specify t.design.")
+  }
+  
   call <- match.call()
   
   # if data is not specified, look for variables in the formula from the global environment
@@ -302,8 +311,8 @@ mrd_est <- function(formula, data, subset = NULL, cutpoint = NULL, bw = NULL,
     o[["front"]] <- list(tau_MRD = 
         eval(bquote(
           mfrd_est(y = Y, x1 = X1, x2 = X2, c1 = .(cutpoint[1]), c2 = .(cutpoint[2]), 
-            tr = NULL, t.design = .(t.design), local = .(local), ngrid = ngrid, 
-            margin = margin, boot = boot, cluster = cluster)
+            t.design = .(t.design), local = .(local), ngrid = ngrid, 
+            margin = margin, boot = boot, cluster = cluster, stop.on.error = stop.on.error)
         ))
     )
   } 

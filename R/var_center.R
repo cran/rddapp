@@ -2,6 +2,8 @@
 #' 
 #' \code{var_center} computes the univariate assignment variable X based on the cutoffs of 
 #  two assignment variables X1, X2.
+#' This is an internal function and is typically not directly invoked by the user. 
+#' It can be accessed using the triple colon, as in rddapp:::var_center().
 #'
 #' @param x Data frame or matrix of two assignment variables,
 #'   where the 1st column is X1, the 2nd column is X2
@@ -21,7 +23,7 @@
 #'
 #' @importFrom graphics text plot abline
 
-var_center <- function(x, cut = c(0, 0), t.design = c("l", "l"), t.plot = FALSE) {
+var_center <- function(x, cut = c(0, 0), t.design = NULL, t.plot = FALSE) {
   if (dim(x)[2] != 2) {
     stop("Exactly 2 assignment variables are needed.")
   }
@@ -30,6 +32,10 @@ var_center <- function(x, cut = c(0, 0), t.design = c("l", "l"), t.plot = FALSE)
     stop("Exactly 2 cutpoints are needed.")
   }
   
+  if (is.null(t.design)){
+    stop("Specify t.design.")
+  }
+
   if (!all(t.design %in% c("g", "geq", "l", "leq"))) {
     stop("Treatment design must be one of 'g', 'geq', 'l', 'leq'.")
   }
