@@ -4,11 +4,23 @@
 \alias{mrd_power}
 \title{Power Analysis of Multivariate Regression Discontinuity}
 \usage{
-mrd_power(num.rep = 100, sample.size = 100, x1.dist = "normal",
-  x1.para = c(0, 1), x2.dist = "normal", x2.para = c(0, 1), x1.cut = 0,
-  x2.cut = 0, x1.fuzzy = c(0, 0), x2.fuzzy = c(0, 0), x1.design = NULL,
-  x2.design = NULL, coeff = c(0.1, 0.5, 0.5, 1, rep(0.1, 9)),
-  eta.sq = 0.5, alpha.list = c(0.001, 0.01, 0.05))
+mrd_power(
+  num.rep = 100,
+  sample.size = 100,
+  x1.dist = "normal",
+  x1.para = c(0, 1),
+  x2.dist = "normal",
+  x2.para = c(0, 1),
+  x1.cut = 0,
+  x2.cut = 0,
+  x1.fuzzy = c(0, 0),
+  x2.fuzzy = c(0, 0),
+  x1.design = NULL,
+  x2.design = NULL,
+  coeff = c(0.1, 0.5, 0.5, 1, rep(0.1, 9)),
+  eta.sq = 0.5,
+  alpha.list = c(0.001, 0.01, 0.05)
+)
 }
 \arguments{
 \item{num.rep}{Number of repetitions used to calculate the empirical alpha.}
@@ -76,8 +88,9 @@ treatment itself. It is used to control the variance of noise in the linear mode
 \item{alpha.list}{List of significance levels used to calculate the empirical alpha.}
 }
 \value{
-\code{mrd_power} returns the results of 6 estimators as a table, 
-  including mean, variance, and power of estimate.
+\code{mrd_power} returns the results of 6 estimators as a table of \link{class} 
+  "\code{mrdp}", including mean, variance, and power of estimate. The function \code{summary}
+  is used to obtain and print a summary of the power analysis.
   The 1st \code{Linear} results of the linear regression estimator 
   of combined RD using the centering approach.
   The 2nd \code{Opt} results of the local linear regression estimator

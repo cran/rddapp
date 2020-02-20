@@ -40,7 +40,7 @@ assumption_checkUI = function(id){
               span(class = 'input-group-addon', inline = T, style='padding:2.5px;')
             ),
             div(class='input-group input-group-sm',
-              span(class='input-group-addon', style='width:30%','band width'),
+              span(class='input-group-addon', style='width:30%','bandwidth'),
               numericInput(ns('sort_banw'), label = NULL, value = NULL, min = 0, 
                 max = NA, step = .01, width = '100%'),
               span(class = 'input-group-addon', inline = T, style='padding:2.5px;')
@@ -101,14 +101,14 @@ assumption_check = function(input, output, session, dataframe, parameter){
       # DEFINE ROW NAMES
       dictionary = c(
         overallt = 'Total Sample Size',
-        overallmisst = sprintf('- Treatment (%s)', parameter$treatment()),
-        overallmissy = sprintf('- Outcome (%s)', parameter$outcome()),
-        overallmissx1 = sprintf('- Assignment 1 (%s)', parameter$assignment1()),
-        overallmissx2 = if(parameter$is_frontier()) sprintf('- Assignment 2 (%s)', parameter$assignment2()),
+        overallmisst = sprintf('Treatment (%s)', parameter$treatment()),
+        overallmissy = sprintf('Outcome (%s)', parameter$outcome()),
+        overallmissx1 = sprintf('Assignment 1 (%s)', parameter$assignment1()),
+        overallmissx2 = if(parameter$is_frontier()) sprintf('Assignment 2 (%s)', parameter$assignment2()),
         missingness = 'Missingness'
       )
       if(!parameter$is_frontier()) 
-        dictionary['overallmissx1'] = sprintf('- Assignment (%s)', parameter$assignment1())
+        dictionary['overallmissx1'] = sprintf('Assignment (%s)', parameter$assignment1())
       
       # TRANSPOSE / RESHAPE DATA
       df = data.frame(
@@ -378,7 +378,7 @@ assumption_check = function(input, output, session, dataframe, parameter){
   output$assumption_plot_png = downloadHandler(
     filename = 'figure_2_1_sorting_test.png',
     content = function(file) {
-      png(file, width=700, height=600, res=150)
+      png(file, width=700, height=600, res=100)
       par(mar=c(3,3,.5,.5))
       plot_sort()
       dev.off()

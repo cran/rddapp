@@ -4,16 +4,28 @@
 \alias{plot.mfrd}
 \title{Plot the Multivariate Frontier Regression Discontinuity}
 \usage{
-\method{plot}{mfrd}(x, model = c("m_s", "m_h", "m_t"), gran = 2,
-  raw_data = TRUE, color_surface = FALSE, ...)
+\method{plot}{mfrd}(
+  x,
+  model = c("m_s", "m_h", "m_t"),
+  methodname = c("Param", "bw", "Half-bw", "Double-bw"),
+  gran = 10,
+  raw_data = TRUE,
+  color_surface = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{An \code{mfrd} object returned by \code{mfrd_est} or contained in the object 
 returned by \code{mrd_est}.}
 
-\item{model}{Option for the model specification, one of \code{c("m_s", "m_h", "m_t")}.}
+\item{model}{Option for the model specification, one of \code{c("m_s", "m_h", "m_t")},
+which denotes the complete model, heterogeneous treatment model and treatment only 
+model respectively.}
 
-\item{gran}{Granularity of the surface grid.}
+\item{methodname}{Option for method specification, one of \code{c("Param", "bw", "Half-bw", "Double-bw")}.}
+
+\item{gran}{Granularity of the surface grid i.e. desired number of predicted points 
+before and after the cutoff along each assignment variable.}
 
 \item{raw_data}{Whether the raw data points are plotted.}
 
@@ -31,5 +43,5 @@ x2 <- runif(1000, -1, 1)
 cov <- rnorm(1000)
 y <- 3 + 2 * (x1 >= 0) + 3 * cov + 10 * (x2 >= 0) + rnorm(1000)
 model <- mfrd_est(y = y, x1 = x1, x2 = x2, c1 = 0, c2 = 0, t.design = c("geq", "geq"))
-plot(model, "m_s")
+plot(model, "m_s", "Param")
 }

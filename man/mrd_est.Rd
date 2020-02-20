@@ -4,12 +4,30 @@
 \alias{mrd_est}
 \title{Multivariate Regression Discontinuity Estimation}
 \usage{
-mrd_est(formula, data, subset = NULL, cutpoint = NULL, bw = NULL,
-  kernel = "triangular", se.type = "HC1", cluster = NULL,
-  verbose = FALSE, less = FALSE, est.cov = FALSE, est.itt = FALSE,
-  local = 0.15, ngrid = 250, margin = 0.03, boot = NULL,
-  method = c("center", "univ", "front"), t.design = NULL,
-  stop.on.error = TRUE)
+mrd_est(
+  formula,
+  data,
+  subset = NULL,
+  cutpoint = NULL,
+  bw = NULL,
+  front.bw = NA,
+  m = 10,
+  k = 5,
+  kernel = "triangular",
+  se.type = "HC1",
+  cluster = NULL,
+  verbose = FALSE,
+  less = FALSE,
+  est.cov = FALSE,
+  est.itt = FALSE,
+  local = 0.15,
+  ngrid = 250,
+  margin = 0.03,
+  boot = NULL,
+  method = c("center", "univ", "front"),
+  t.design = NULL,
+  stop.on.error = TRUE
+)
 }
 \arguments{
 \item{formula}{The formula of the MRDD. This is supplied in the
@@ -34,6 +52,15 @@ If only a single value is passed into the function,
 the RD will similarly be estimated at that bandwidth, half that bandwidth, 
 and twice that bandwidth.}
 
+\item{front.bw}{A numeric vector specifying the bandwidths at which to estimate the RD for each
+of three effects models in the frontier method. If NA, front.bw will be determined by cross validation.}
+
+\item{m}{The number of uniformly-at-random samples to draw as search candidates for front.bw 
+if not given.}
+
+\item{k}{An integer specifying the number of folds for cross validation to determine front.bw
+if not given.}
+
 \item{kernel}{A string specifying the kernel to be used in the local linear fitting. 
 \code{"triangular"} kernel is the default and is the "correct" theoretical kernel to be 
 used for edge estimation as in RDD (Lee and Lemieux, 2010). Other options are 
@@ -55,9 +82,11 @@ variable be clustered by each unique value of the running variable (Lee and Card
 \item{less}{Logical. If \code{TRUE}, return the estimates of linear and optimal, 
 instead of linear, quadratic, cubic, optimal, half and double.}
 
-\item{est.cov}{Logical. If \code{TRUE}, the estimates of covariates will be included.}
+\item{est.cov}{Logical. If \code{TRUE}, the estimates of covariates will be included. Not
+applicable if method is \code{"front"}.}
 
-\item{est.itt}{Logical. If \code{TRUE}, the estimates of ITT will be returned.}
+\item{est.itt}{Logical. If \code{TRUE}, the estimates of ITT will be returned. Not
+applicable if method is \code{"front"}.}
 
 \item{local}{The range of neighboring points around the cutoff on the 
 standardized scale on each assignment variable, which is a positive number.}

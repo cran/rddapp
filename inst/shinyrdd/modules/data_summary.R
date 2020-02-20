@@ -207,6 +207,7 @@ data_summary = function(input, output, session, dataframe, parameter){
           scrollX = TRUE,
           buttons = list(list(
             extend = 'csv',
+            bom = 'true', 
             text = '<i class="fa fa-file-text-o"></i>',
             titleAttr = 'Download table as CSV',
             filename = 'table_1_2_design_summary',
@@ -322,7 +323,7 @@ data_summary = function(input, output, session, dataframe, parameter){
   output$describe_note = renderUI(expr = {
     
     span(em('Note.'),
-                'T = Treatment, O = Outcome, A = Assignment, C = covariate.',
+                'T = Treatment, O = Outcome, A = Assignment, C = Covariate.',
                 
       ifelse(!is.null(describe()$warning),
         span(describe()$warning, style = 'color:red'),''))

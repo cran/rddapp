@@ -4,11 +4,31 @@
 \alias{mrd_impute}
 \title{Multiple Imputation of Multivariate Regression Discontinuity Estimation}
 \usage{
-mrd_impute(formula, data, subset = NULL, cutpoint = NULL, bw = NULL,
-  kernel = "triangular", se.type = "HC1", cluster = NULL, impute = NULL,
-  verbose = FALSE, less = FALSE, est.cov = FALSE, est.itt = FALSE,
-  local = 0.15, ngrid = 2500, margin = 0.03, boot = NULL,
-  method = c("center", "univ", "front"), t.design = NULL)
+mrd_impute(
+  formula,
+  data,
+  subset = NULL,
+  cutpoint = NULL,
+  bw = NULL,
+  front.bw = NA,
+  m = 10,
+  k = 5,
+  kernel = "triangular",
+  se.type = "HC1",
+  cluster = NULL,
+  impute = NULL,
+  verbose = FALSE,
+  less = FALSE,
+  est.cov = FALSE,
+  est.itt = FALSE,
+  local = 0.15,
+  ngrid = 250,
+  margin = 0.03,
+  boot = NULL,
+  method = c("center", "univ", "front"),
+  t.design = NULL,
+  stop.on.error = TRUE
+)
 }
 \arguments{
 \item{formula}{The formula of the MRDD. This is supplied in the
@@ -32,6 +52,15 @@ with that bandwidth, half that bandwidth, and twice that bandwidth.
 If only a single value is passed into the function,
 the RD will similarly be estimated at that bandwidth, half that bandwidth, 
 and twice that bandwidth.}
+
+\item{front.bw}{A numeric vector specifying the bandwidths at which to estimate the RD for each
+of three effects models in the frontier method. If NA, front.bw will be determined by cross validation.}
+
+\item{m}{The number of uniformly-at-random samples to draw as search candidates for front.bw 
+if not given.}
+
+\item{k}{An integer specifying the number of folds for cross validation to determine front.bw
+if not given.}
 
 \item{kernel}{A string specifying the kernel to be used in the local linear fitting. 
 \code{"triangular"} kernel is the default and is the "correct" theoretical kernel to be 
@@ -64,7 +93,8 @@ instead of linear, quadratic, cubic, optimal, half and double.}
 standardized scale on each assignment variable, which is a positive number.}
 
 \item{ngrid}{The number of non-zero grid points on each assignment variable,
-which is also the number of zero grid points on each assignment variable.}
+which is also the number of zero grid points on each assignment variable. Value used in 
+Wong, Steiner and Cook (2013) is 2500, which may cause long computational time.}
 
 \item{margin}{The range of grid points beyond the minimum and maximum
 of sample points on each assignment variable.}
@@ -81,25 +111,31 @@ if X1 is greater than or equal to its cutoff, \code{"l"} means treatment is assi
 if X1 is less than its cutoff, \code{"leq"} means treatment is assigned 
 if X1 is less than or equal to its cutoff.
 The 2nd entry is for X2.}
+
+\item{stop.on.error}{Logical. If \code{TRUE} (the default), removes bootstraps which cause
+error in the \code{integrate} function, and resample till the specified number of 
+bootstrap samples are acquired.}
 }
 \value{
-\code{rd_impute} returns an object of \link{class} "\code{mrd}".
+\code{mrd_impute} returns an object of \link{class} "\code{mrd}", or "\code{mrdi}" for
+\code{"front"} method.
 }
 \description{
 \code{mrd_impute} estimates treatment effects in an MRDD with imputed missing values.
 }
 \examples{
-x1 <- runif(1000, -1, 1)
-x2 <- runif(1000, -1, 1)
-cov <- rnorm(1000)
-y <- 3 + 2 * (x1 >= 0) + 3 * cov + 10 * (x2 >= 0) + rnorm(1000)
-group <- rep(1:10, each = 100)
+x1 <- runif(300, -1, 1)
+x2 <- runif(300, -1, 1)
+cov <- rnorm(300)
+y <- 3 + 2 * (x1 >= 0) + 3 * cov + 10 * (x2 >= 0) + rnorm(300)
+group <- rep(1:3, each = 100)
+# all examples below have smaller numbers of m to keep run-time low
 # centering
-mrd_impute(y ~ x1 + x2 | cov, impute = group, method = "center", t.design = c("geq", "geq"))
+mrd_impute(y ~ x1 + x2 | cov, impute = group, method = "center", t.design = c("geq", "geq"), m = 3)
 # univariate
-mrd_impute(y ~ x1 + x2 | cov, impute = group, method = "univ", t.design = c("geq", "geq"))
+mrd_impute(y ~ x1 + x2 | cov, impute = group, method = "univ", t.design = c("geq", "geq"), m = 3)
 # frontier
-mrd_impute(y ~ x1 + x2 | cov, impute = group, method = "front", t.design = c("geq", "geq"))
+mrd_impute(y ~ x1 + x2 | cov, impute = group, method = "front", t.design = c("geq", "geq"), m = 3)
 }
 \references{
 Stata: 64 mi estimate - Estimation using multiple imputations

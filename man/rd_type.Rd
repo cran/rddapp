@@ -4,8 +4,16 @@
 \alias{rd_type}
 \title{Determine Type of Regression Discontinuity Design}
 \usage{
-rd_type(data, treat, assign_1, cutoff_1, operator_1 = NULL, assign_2 = NULL,
-  cutoff_2 = NULL, operator_2 = NULL)
+rd_type(
+  data,
+  treat,
+  assign_1,
+  cutoff_1,
+  operator_1 = NULL,
+  assign_2 = NULL,
+  cutoff_2 = NULL,
+  operator_2 = NULL
+)
 }
 \arguments{
 \item{data}{A \code{data.frame} with each row representing an observation.}
@@ -32,4 +40,13 @@ A list of two elements:
 \description{
 \code{rd_type} cross-tabulates observations based on (1) a binary treatment and 
 (2) one or two assignments and their cutoff values.
+This is an internal function and is typically not directly invoked by the user. 
+It can be accessed using the triple colon, as in rddapp:::rd_type().
+}
+\examples{
+x <- runif(1000, -1, 1)
+cov <- rnorm(1000)
+y <- 3 + 2 * x + 3 * cov + 10 * (x >= 0) + rnorm(1000)
+df <- data.frame(cbind(y, x, t = x>=0))
+rddapp:::rd_type(df, 't', 'x', 0, 'geq')
 }
