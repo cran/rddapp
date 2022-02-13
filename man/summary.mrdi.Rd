@@ -2,7 +2,7 @@
 % Please edit documentation in R/summary.mrdi.R
 \name{summary.mrdi}
 \alias{summary.mrdi}
-\title{Summarize the Multiple Imputation of Multivariate Regression Discontinuity Estimation}
+\title{Summarize the Multiple Imputation of Multivariate Regression Discontinuity}
 \usage{
 \method{summary}{mrdi}(object, level = 0.95, digits = max(3, getOption("digits") - 3), ...)
 }
@@ -10,11 +10,12 @@
 \item{object}{An object of class \code{"mrdi"}, usually a result of a call to 
 \code{\link{mrd_impute}} with \code{"front"} method.}
 
-\item{level}{Numerical value between 0 and 1. Confidence level for confidence intervals.}
+\item{level}{A numeric value between 0 and 1 specifying the confidence level for confidence intervals. The default is 0.95.}
 
-\item{digits}{Number of digits to display.}
+\item{digits}{A non-negative integer specifying the number of digits to display.
+The default is \code{max(3, getOption("digits") - 3)}.}
 
-\item{...}{Additional arguments.}
+\item{...}{Additional arguments passed to \code{summary}.}
 }
 \value{
 \code{summary.mrdi} returns a list which has the following components:
@@ -26,5 +27,10 @@ for the heterogeneous treatment model.}
 for the treatment only model.}
 }
 \description{
-\code{summary.mrdi} is a \code{summary} method for class \code{"mrdi"}
+\code{summary.mrdi} is a \code{summary} method for class \code{"mrdi"}.
+It is based on \code{summary.RD} function in the "rdd" package.
+}
+\references{
+Drew Dimmery (2016). rdd: Regression Discontinuity Estimation. R package
+   version 0.57. https://CRAN.R-project.org/package=rdd
 }

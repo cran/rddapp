@@ -40,7 +40,7 @@
 
 - Bugfixes in mrd_impute function, including summary function
 
-- Incorrect outputs for Cohen'd of covariates are removed from rd_est and mrd_est
+- Incorrect outputs for Cohen's d of covariates are removed from rd_est and mrd_est
 
 - Help files have been updated e.g. example added for rd_type, more descriptions of arguments added for plot.mfrd and predict.rd
 
@@ -57,3 +57,13 @@
 - Fixed comments in help file
 
 - Fixed probabilities in Table 1.3 of the shiny app
+
+# rddapp 1.2.2
+
+- Fixed issues with delisted dependencies by removing tests
+
+# rddapp 1.3
+
+- Updated package documentation and help pages
+- Created pkgdown website
+- Fixed display issues in "shinyrdd" app

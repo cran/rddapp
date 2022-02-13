@@ -1,12 +1,12 @@
 ## ----echo=FALSE---------------------------------------------------------------
-knitr::include_graphics("figs/f1.png", dpi=200)
+knitr::include_graphics("figs/f1_digital.png", dpi=200)
 
 ## ----echo=FALSE---------------------------------------------------------------
-knitr::include_graphics("figs/f2.png", dpi=200)
+knitr::include_graphics("figs/f2_digital.png", dpi=200)
 
 ## ----echo=FALSE---------------------------------------------------------------
-knitr::include_graphics("figs/f3.png", dpi=200)
+knitr::include_graphics("figs/f3_digital.png", dpi=200)
 
 ## ----echo=FALSE---------------------------------------------------------------
-knitr::include_graphics("figs/f4.png",dpi = 200)
+knitr::include_graphics("figs/f4_digital.png",dpi = 200)
 

@@ -24,65 +24,115 @@ mfrd_est(
 )
 }
 \arguments{
-\item{y}{The outcome variable (continuous).}
+\item{y}{A numeric object containing outcome variable.}
 
-\item{x1}{The assignment variable 1.}
+\item{x1}{A numeric object containing the first assignment variable.}
 
-\item{x2}{The assignment variable 2.}
+\item{x2}{A numeric object containing the second assignment variable.}
 
-\item{c1}{The cutoff of assignment variable 1.}
+\item{c1}{A numeric value containing the cutpoint at which assignment to the treatment is determined for \code{x1}.}
 
-\item{c2}{The cutoff of assignment variable 2.}
+\item{c2}{A numeric value containing the cutpoint at which assignment to the treatment is determined for \code{x2}.}
 
-\item{t.design}{The treatment option according to design.
-The 1st entry is for x1: \code{"g"} means treatment is assigned 
-if x1 is greater than its cutoff, \code{"geq"} means treatment is assigned 
-if x1 is greater than or equal to its cutoff, \code{"l"} means treatment is assigned 
-if x1 is less than its cutoff, \code{"leq"} means treatment is assigned 
-if x1 is less than or equal to its cutoff.
-The 2nd entry is for x2.}
+\item{t.design}{A character vector of length 2 specifying the treatment option according to design.
+The first entry is for \code{x1} and the second entry is for \code{x2}. Options are  
+\code{"g"} (treatment is assigned if \code{x1} is greater than its cutoff),
+\code{"geq"} (treatment is assigned if \code{x1} is greater than or equal to its cutoff),
+\code{"l"} (treatment is assigned if \code{x1} is less than its cutoff),
+and \code{"leq"} (treatment is assigned if \code{x1} is less than or equal to its cutoff).
+The same options are available for \code{x2}.}
 
-\item{local}{The range of neighboring points around the cutoff on the 
-standardized scale on each assignment variable, which is a positive number.}
+\item{local}{A non-negative numeric value specifying the range of neighboring points around the cutoff on the 
+standardized scale, for each assignment variable. The default is 0.15.}
 
-\item{front.bw}{A numeric vector specifying the bandwidths at which to estimate the RD for each
-of three effects models. If NA, front.bw will be determined by cross validation.}
+\item{front.bw}{A non-negative numeric vector of length 3 specifying the bandwidths at which to estimate the RD for each
+of three effects models (complete model, heterogeneous treatment model, and treatment only model) 
+detailed in Wong, Steiner, and Cook (2013).
+If \code{NA}, \code{front.bw} will be determined by cross-validation. The default is \code{NA}.}
 
-\item{m}{The number of uniformly-at-random samples to draw as search candidates for front.bw if not
-given.}
+\item{m}{A non-negative integer specifying the number of uniformly-at-random samples to draw as search candidates for \code{front.bw},
+if \code{front.bw} is \code{NA}. The default is 10.}
 
-\item{k}{An integer specifying the number of folds for cross validation to determine front.bw
-if not given.}
+\item{k}{A non-negative integer specifying the number of folds for cross-validation to determine \code{front.bw},
+if \code{front.bw} is \code{NA}. The default is 5.}
 
-\item{kernel}{A string specifying the kernel to be used in the local linear fitting. 
-\code{"triangular"} kernel is the default. Other options are 
-\code{"rectangular"}, \code{"epanechnikov"}, \code{"quartic"}, 
-\code{"triweight"}, \code{"tricube"}, \code{"gaussian"} and \code{"cosine"}.}
+\item{kernel}{A string indicating which kernel to use. Options are \code{"triangular"} 
+(default and recommended), \code{"rectangular"}, \code{"epanechnikov"}, \code{"quartic"}, 
+\code{"triweight"}, \code{"tricube"}, and \code{"cosine"}.}
 
-\item{ngrid}{The number of non-zero grid points on each assignment variable,
-which is also the number of zero grid points on each assignment variable. Value used in 
+\item{ngrid}{A non-negative integer specifying the number of non-zero grid points on each assignment variable,
+which is also the number of zero grid points on each assignment variable. The default is 250. The value used in 
 Wong, Steiner and Cook (2013) is 2500, which may cause long computational time.}
 
-\item{margin}{The range of grid points beyond the minimum and maximum
-of sample points on each assignment variable.}
+\item{margin}{A non-negative numeric value specifying the range of grid points beyond the minimum and maximum
+of sample points on each assignment variable. This grid is used to impute potential outcomes along the frontier,
+as in Wong, Steiner, and Cook (2013). The default is 0.03.}
 
-\item{boot}{The number of bootstrap samples to obtain standard error of estimates.}
+\item{boot}{An optional non-negative integer specifying the number of bootstrap samples to obtain standard error of estimates.}
 
-\item{cluster}{An optional vector specifying clusters within which the errors are assumed
-to be correlated. This will result in reporting cluster robust SEs. This option overrides
-anything specified in \code{se.type}. It is suggested that data with a discrete running 
+\item{cluster}{An optional vector of length n specifying clusters within which the errors are assumed
+to be correlated. This will result in reporting cluster robust SEs. It is suggested that data with a discrete running 
 variable be clustered by each unique value of the running variable (Lee and Card, 2008).}
 
-\item{stop.on.error}{Logical. If \code{TRUE} (the default), removes bootstraps which cause
-error in the \code{integrate} function, and resample till the specified number of 
-bootstrap samples are acquired.}
+\item{stop.on.error}{A logical value indicating whether to remove bootstraps which cause error in the \code{integrate} function. If \code{TRUE}, bootstraps which cause error are removed
+and resampled until the specified number of 
+bootstrap samples are acquired. If \code{FALSE}, bootstraps which cause error are not removed. The default is \code{TRUE}.}
 }
 \value{
 \code{mfrd_est} returns an object of \link{class} "\code{mfrd}".
+  The functions \code{summary} and \code{plot} are used to obtain and print a summary and 
+  plot of the estimated regression discontinuity. The object of class \code{mfrd} is a list 
+  containing the following components:
+\item{w}{Numeric vector specifying the weight of frontier 1 and frontier 2, respectively.}   
+\item{est}{Numeric matrix of the estimate of the discontinuity in the outcome under 
+  a complete model (no prefix), heterogeneous treatment (ht) effects model, and treatment (t) only model,
+  for the parametric case and for each corresponding bandwidth.
+  Estimates with suffix "ev1" and "ev2" correspond to expected values for each frontier, under a given model.
+  Estimates with suffix "ate" correspond to average treatment effects across both frontiers, 
+  under a given model.}
+\item{d}{Numeric matrix of the effect size (Cohen's d) for estimate.}
+\item{se}{Numeric matrix of the standard error for each corresponding bandwidth and ....}
+\item{m_s}{A list containing estimates for the complete model, under parametric
+and non-parametric (optimal, half, and double bandwidth) cases. A list of 
+coefficient estimates, residuals, effects, weights (in the non-parametric case),
+\code{lm} output (rank of the fitted linear model, fitted values, assignments for the design matrix,
+qr for linear fit, residual degrees of freedom, levels of the x value, function call, and terms),
+and output data frame are returned for each model.}
+\item{m_h}{A list containing estimates for the heterogeneous treatments model, under parametric
+and non-parametric (optimal, half, and double bandwidth) cases. A list of 
+coefficient estimates, residuals, effects, weights (in the non-parametric case),
+\code{lm} output (rank of the fitted linear model, fitted values, assignments for the design matrix,
+qr for linear fit, residual degrees of freedom, levels of the x value, function call, and terms),
+and output data frame are returned for each model.}
+\item{m_t}{A list containing estimates for the treatment only model, under parametric
+and non-parametric (optimal, half, and double bandwidth) cases. A list of 
+coefficient estimates, residuals, effects, weights (in the non-parametric case),
+\code{lm} output (rank of the fitted linear model, fitted values, assignments for the design matrix,
+qr for linear fit, residual degrees of freedom, levels of the x value, function call, and terms),
+and output data frame are returned for each model.}
+\item{dat_h}{A list containing four data frames, one for each case:
+parametric or non-parametric (optimal, half, and double bandwidth).
+Each data frame contains functions and densities for each frontier
+and treatment model.}
+\item{dat}{A data frame containing the outcome (\code{y}) and each input
+(\code{x1}, \code{x2}) for each observation. The data frame also contains
+ indicators of being within the \code{local} boundary of the \code{cutpoint}
+ for x1 and x2 (\code{x1res}, \code{x2res}),
+scaled (\code{zx1}, \code{zx2}) and
+centered x1 and x2 values (\code{zcx1}, \code{zcx2}), and 
+treatment indicators for overall treatment (\code{tr}) based on treatment assignment
+from x1 (\code{tr1}), x2 (\code{tr2}), and both assignment variables (\code{trb}).}
+\item{obs}{List of the number of observations used in each model.}
+\item{impute}{A logical value indicating whether multiple imputation is used or not.}
+\item{call}{The matched call.}
+\item{front.bw}{Numeric vector of each bandwidth used to estimate the density
+  at the frontier for the three effects models (complete model,
+  heterogeneous treatment model, and treatment only model) 
+  detailed in Wong, Steiner, and Cook (2013).}
 }
 \description{
-\code{mfrd_est} implements the frontier approach in Wong, Steiner and Cook (2013). 
-It is based on the MFRDD code in Stata.
+\code{mfrd_est} implements the frontier approach for multivariate regression discontinuity estimation in Wong, Steiner and Cook (2013). 
+It is based on the MFRDD code in Stata from Wong, Steiner, and Cook (2013).
 }
 \examples{
 set.seed(12345)
@@ -91,4 +141,15 @@ x2 <- runif(1000, -1, 1)
 cov <- rnorm(1000)
 y <- 3 + 2 * (x1 >= 0) + 3 * cov + 10 * (x2 >= 0) + rnorm(1000)
 mfrd_est(y = y, x1 = x1, x2 = x2, c1 = 0, c2 = 0, t.design = c("geq", "geq"))
+}
+\references{
+Wong, V., Steiner, P, and Cook, T. (2013).
+  Analyzing regression discontinuity designs with multiple assignment variables: A comparative study of four estimation methods. 
+  Journal of Educational and Behavioral Statistics, 38(2), 107-141. 
+  \doi{10.3102/1076998611432172}.
+
+Lee, D. and Card, D. (2008).
+  A Regression discontinuity inference with specification error.
+  Journal of Econometrics, 142(2), 655-674. 
+  \doi{10.1016/j.jeconom.2007.05.003}.
 }

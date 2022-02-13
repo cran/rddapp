@@ -1,7 +1,6 @@
 Package: rddapp
 Title: Regression Discontinuity Design Application
-Version: 1.2.1
-Date: 2020-02-02
+Version: 1.3.0
 Authors@R: c(
     person("Ze", "Jin", role = c("aut"),
            email = "zj58@cornell.edu"),
@@ -10,23 +9,18 @@ Authors@R: c(
     person("Irena", "Papst", role = c("aut"),
             email = "ip98@cornell.edu"),
     person("Wenyu", "Zhang", role = c("aut"),
-            email = "wz258@cornell.edu"),           
+            email = "wz258@cornell.edu"),
+    person("Kimberly", "Hochstedler", role = c("aut"),
+            email = "kah343@cornell.edu"),
     person("Felix", "Thoemmes", role = c("aut", "cre"),
-           email = "fjt36@cornell.edu"),
-    person("Drew", "Dimmery", role = c("ctb"),
-           email = "drewd@nyu.edu"),
-    person("Bastiaan", "Quast", role = c("ctb"),
-           email = "bquast@gmail.com"),
-    person("Matthieu", "Stigler", role = c("ctb"))
+           email = "fjt36@cornell.edu")
     )   
 Author: Ze Jin [aut],
   Wang Liao [aut],
   Irena Papst [aut],
   Wenyu Zhang [aut],
-  Felix Thoemmes [aut, cre],
-  Drew Dimmery [ctb],
-  Bastiaan Quast [ctb],
-  Matthieu Stigler [ctb]
+  Kimberly Hochstedler [aut],
+  Felix Thoemmes [aut, cre]
 Maintainer: Felix Thoemmes <fjt36@cornell.edu>
 Description: Estimation of both single- and multiple-assignment Regression Discontinuity Designs 
     (RDDs). Provides both parametric (global) and non-parametric (local) estimation choices for
@@ -37,14 +31,14 @@ Description: Estimation of both single- and multiple-assignment Regression Disco
 Depends: R (>= 3.2.3)
 Imports: AER (>= 1.2-5), sandwich (>= 2.3-4), lmtest (>= 0.9-35),
         Formula (>= 1.2-1), shiny (>= 0.14), R.utils (>= 2.6.0), plot3D
-        (>= 1.1.1), sp (>= 1.3.1)
-Suggests: rdd (>= 0.57), rddtools (>= 0.4.0), foreign (>= 0.8-67),
-        devtools (>= 1.12.0), testthat (>= 1.0.2), roxygen2 (>= 5.0.1),
-        knitr (>= 1.14), rmarkdown (>= 1.1.9012), DT (>= 0.2)
+        (>= 1.1.1), sp (>= 1.3.1), DT (>= 0.2)
+Suggests: foreign (>= 0.8-67), devtools (>= 1.12.0), testthat (>=
+        1.0.2), roxygen2 (>= 5.0.1), knitr (>= 1.14), rmarkdown (>=
+        1.1.9012)
 VignetteBuilder: knitr
 License: GPL (>= 2)
 LazyData: true
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.2
 Collate: 'attr_check.R' 'bw_ik09.R' 'bw_ik12.R' 'data.R' 'wt_kern.R'
         'dc_test.R' 'treat_assign.R' 'wt_kern_bivariate.R' 'mfrd_est.R'
         'var_center.R' 'rd_est.R' 'mrd_est.R' 'mrd_impute.R'
@@ -55,6 +49,6 @@ Collate: 'attr_check.R' 'bw_ik09.R' 'bw_ik12.R' 'data.R' 'wt_kern.R'
         'summary.mfrd.R' 'summary.mrd.R' 'summary.mrdi.R'
         'summary.mrdp.R' 'summary.rd.R' 'summary.rdp.R'
 NeedsCompilation: no
-Packaged: 2020-02-20 02:11:19 UTC; fjt36-admin
+Packaged: 2022-02-12 16:09:52 UTC; fjt36-admin
 Repository: CRAN
-Date/Publication: 2020-02-20 06:30:10 UTC
+Date/Publication: 2022-02-13 18:50:02 UTC

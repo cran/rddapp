@@ -2,15 +2,15 @@
 % Please edit documentation in R/shiny_run.R
 \name{shiny_run}
 \alias{shiny_run}
-\title{Launch the Shiny App for Regression Discontinuity}
+\title{Launch the R Shiny App for "rddapp"}
 \usage{
 shiny_run(app_name = "shinyrdd")
 }
 \arguments{
-\item{app_name}{The name of Shiny app.}
+\item{app_name}{A string specifying the name of the R Shiny app. The default is \code{"shinyrdd"}.}
 }
 \description{
-\code{shiny_run} looks for the Shiny app for rdd and launch it.
+\code{shiny_run} launches the R Shiny application for "rddapp".
 }
 \examples{
 \dontrun{
