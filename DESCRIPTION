@@ -1,6 +1,6 @@
 Package: rddapp
 Title: Regression Discontinuity Design Application
-Version: 1.3.0
+Version: 1.3.2
 Authors@R: c(
     person("Ze", "Jin", role = c("aut"),
            email = "zj58@cornell.edu"),
@@ -37,8 +37,9 @@ Suggests: foreign (>= 0.8-67), devtools (>= 1.12.0), testthat (>=
         1.1.9012)
 VignetteBuilder: knitr
 License: GPL (>= 2)
+Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 Collate: 'attr_check.R' 'bw_ik09.R' 'bw_ik12.R' 'data.R' 'wt_kern.R'
         'dc_test.R' 'treat_assign.R' 'wt_kern_bivariate.R' 'mfrd_est.R'
         'var_center.R' 'rd_est.R' 'mrd_est.R' 'mrd_impute.R'
@@ -49,6 +50,6 @@ Collate: 'attr_check.R' 'bw_ik09.R' 'bw_ik12.R' 'data.R' 'wt_kern.R'
         'summary.mfrd.R' 'summary.mrd.R' 'summary.mrdi.R'
         'summary.mrdp.R' 'summary.rd.R' 'summary.rdp.R'
 NeedsCompilation: no
-Packaged: 2022-02-12 16:09:52 UTC; fjt36-admin
+Packaged: 2023-04-05 19:14:26 UTC; fjt36-admin
 Repository: CRAN
-Date/Publication: 2022-02-13 18:50:02 UTC
+Date/Publication: 2023-04-05 20:00:02 UTC

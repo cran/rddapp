@@ -67,3 +67,16 @@
 - Updated package documentation and help pages
 - Created pkgdown website
 - Fixed display issues in "shinyrdd" app
+
+# rddapp 1.3.1
+
+- Fixed `mrd_est` to allow users to specify "IK12" and "IK09" for the `bw` argument. 
+- Added warnings for `front.bw` calculations in `mfrd_est`. 
+
+# rddapp 1.3.2
+
+- Updated degrees of freedom calculations in `rd_impute` and `mrd_impute` to use Barnard and Rubin (1999) adjustment. 
+
+# rddapp 1.3.3
+
+- Adjusted the smoothing spline used in the `int_cubic` internal function to improve estimation stability. 

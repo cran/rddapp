@@ -54,7 +54,7 @@
 #'   Estimates with suffix "ate" correspond to average treatment effects across both frontiers, 
 #'   under a given model.}
 #' \item{d}{Numeric matrix of the effect size (Cohen's d) for estimate.}
-#' \item{se}{Numeric matrix of the standard error for each corresponding bandwidth and ....}
+#' \item{se}{Numeric matrix of the standard error for each corresponding bandwidth, if applicable.}
 #' \item{m_s}{A list containing estimates for the complete model, under parametric
 #' and non-parametric (optimal, half, and double bandwidth) cases. A list of 
 #' coefficient estimates, residuals, effects, weights (in the non-parametric case),
@@ -104,6 +104,7 @@
 #'   \doi{10.1016/j.jeconom.2007.05.003}.
 #'
 #' @importFrom stats bw.nrd0 integrate splinefun predict.lm
+#' @importFrom stats smooth.spline
 #'
 #' @include treat_assign.R
 #' @include wt_kern_bivariate.R
@@ -211,6 +212,13 @@ mfrd_est <- function(y, x1, x2, c1, c2, t.design = NULL, local = 0.15, front.bw 
     bw.opt <- bw.seq[min.idx]
     # default of bandwidth is 1 when minimum cannot be found due to no points within testing bandwidth
     bw.opt[is.na(bw.opt)] = 1
+    bw.opt[1] <- ifelse(identical(bw.opt, numeric(0)), 1, bw.opt[1])
+    bw.opt[2] <- ifelse(is.na(bw.opt[2]), 1, bw.opt[2])
+    bw.opt[3] <- ifelse(is.na(bw.opt[3]), 1, bw.opt[3])
+  }
+  
+  if (length(which(bw.opt == 1)) > 1) {
+    print("Cross validation failed. `front.bw` = 1 is used.")
   }
   
   # concatenate results for the bandwidth, and half and double the bandwidth
@@ -393,9 +401,9 @@ mfrd_est_cv <- function(y, x1, x2, c1, c2, t.design = NULL, local = 0.15, front.
     yhat_h = predict.lm(m_h, newdata = testdat)
     yhat_t = predict.lm(m_t, newdata = testdat)
     
-    mse$mse_s[i] = mean(((yhat_s - testy)[testwt$distAll1 <= 1])**2)
-    mse$mse_h[i] = mean(((yhat_h - testy)[testwt$distAll2 <= 1])**2)
-    mse$mse_t[i] = mean(((yhat_t - testy)[testwt$distTr <= 1])**2)
+    mse$mse_s[i] = mean(((yhat_s - testy)[testwt$distAll1 <= 1])**2, na.rm = TRUE)
+    mse$mse_h[i] = mean(((yhat_h - testy)[testwt$distAll2 <= 1])**2, na.rm = TRUE)
+    mse$mse_t[i] = mean(((yhat_t - testy)[testwt$distTr <= 1])**2, na.rm = TRUE)
   }
 
   return(colMeans(mse))
@@ -746,7 +754,9 @@ mfrd_est_single <- function(y, x1, x2, c1, c2,
 
 ## mimic Stata's integ
 int_cubic <- function(x, y, stop.on.error = TRUE){
-  integrate(splinefun(x, y, method = "natural", ties = list("ordered", mean)),
+  fit_spline = smooth.spline(x, y)
+  integrate(splinefun(fit_spline$x, fit_spline$y,
+                      method = "natural", ties = list("ordered", mean)),
             lower = min(x), upper = max(x), 
             subdivisions = 500L, stop.on.error = stop.on.error)$value
 }
